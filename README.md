@@ -1,5 +1,8 @@
 ## screen_capture_gif
 
+![OS](https://img.shields.io/badge/OS-Linux-212121.svg?style=true)
+
+### Description
 A shell script to record GIFs from your Android devices
 
 A picture is worth 1,000 words - and, when prototyping animations, recording visual glitches, etc, a video is
@@ -9,7 +12,6 @@ GIFs with a single command.
 <div align="center">
   <img src="example.gif" alt="An animated GIF showing an Android app opening" />
   <br />
-  <em>Example output</em>
 </div>
 
 ### Usage
@@ -25,10 +27,11 @@ Note: you'll need an physical Android device plugged in - emulators don't genera
 
 #### Linux
 
-Ensure `adb`, `ffmpeg`, and `ffprobe` are on your $PATH.  Also make sure that your console window is
-capable of executing `bash`.
+Ensure `adb`, `ffmpeg`, and `ffprobe` are on your `$PATH`.
 
-Copy `gifcap` and place it somewhere on your $PATH.
+#### Suggestion
+
+Copy `screen_capture_gif` and place it somewhere on your `$PATH`.
 
 -------
 
