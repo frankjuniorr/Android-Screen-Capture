@@ -1,8 +1,14 @@
 ## screen_capture_gif
 
+A project inspired and forked from [Outlook](https://github.com/outlook/gifcap)
+
 ![OS](https://img.shields.io/badge/OS-Linux-212121.svg?style=true)
+![dependence](https://img.shields.io/badge/dependence-adb-F44336.svg?style=true)
+![tool](https://img.shields.io/badge/tool-ffmpeg-4CAF50.svg?style=true)
+![tool](https://img.shields.io/badge/tool-ffprobe-4CAF50.svg?style=true)
 
 ### Description
+
 A shell script to record GIFs from your Android devices
 
 A picture is worth 1,000 words - and, when prototyping animations, recording visual glitches, etc, a video is
