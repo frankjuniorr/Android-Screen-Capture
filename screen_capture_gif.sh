@@ -23,11 +23,11 @@
 
 ################################################################################
 # Name:
-#  gifcap -- records video from an Android device to a GIF file.
+#  screen_capture_gif -- records video from an Android device to a GIF file.
 #
 ################################################################################
 # Synopsis:
-#   gifcap [output]
+#   screen_capture_gif [output]
 #
 ################################################################################
 # Description:
@@ -49,7 +49,7 @@
 ################################################################################
 # Usage:
 #   <plug in device>
-#   gifcap [filename]
+#   screen_capture_gif [filename]
 #   <do stuff on device>
 #   <ctrl+c> to stop recording
 #
@@ -127,7 +127,7 @@ validations() {
 # ============================================
 print_help() {
   cat <<- "EOF"
-usage: gifcap [options...] [output]
+usage: screen_capture_gif [options...] [output]
 
 Record video from an Android device and make a gif out of it
 
