@@ -1,4 +1,4 @@
-## gifcap
+## screen_capture_gif
 
 A shell script to record GIFs from your Android devices
 
@@ -7,7 +7,7 @@ worth far more.  This script makes it easy to capture and share subtle app behav
 GIFs with a single command.
 
 <div align="center">
-  <img src="web/example.gif" alt="An animated GIF showing an Android app opening" />
+  <img src="example.gif" alt="An animated GIF showing an Android app opening" />
   <br />
   <em>Example output</em>
 </div>
@@ -15,11 +15,11 @@ GIFs with a single command.
 ### Usage
 
 ```bash
-gifcap your_file_name.gif
+./screen_capture_gif.sh your_file_name.gif
 <CTRL+C to stop recording>
 ```
 
-Note: you'll need an actual Android device plugged in - emulators don't generally have `screenrecord` built in.
+Note: you'll need an physical Android device plugged in - emulators don't generally have `screenrecord` built in.
 
 ### Install
 
