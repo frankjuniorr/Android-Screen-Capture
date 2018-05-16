@@ -23,19 +23,7 @@ Note: you'll need an actual Android device plugged in - emulators don't generall
 
 ### Install
 
-#### macOS
-
-```bash
-brew install gifcap
-```
-
-Note that we assume you have `adb` on your path.  If you don't have an Android SDK, and want Homebrew to set it up for you:
-
-```bash
-brew install gifcap --with-android-sdk
-```
-
-#### Others
+#### Linux
 
 Ensure `adb`, `ffmpeg`, and `ffprobe` are on your $PATH.  Also make sure that your console window is
 capable of executing `bash`.
@@ -45,4 +33,3 @@ Copy `gifcap` and place it somewhere on your $PATH.
 -------
 
 Copyright © Microsoft Corporation
-
