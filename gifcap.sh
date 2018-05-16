@@ -59,33 +59,73 @@
 # Since: 16-05-2018
 ################################################################################
 
-set -eu
+set -e
 
-function die() {
-  echo >&2 "$1"
-  exit 1
+################################################################################
+# Variables - Variables stay here
+
+file_output=$1
+
+################################################################################
+# Utils - Utils functions
+
+# return codes
+readonly SUCCESS=0
+readonly ERROR=1
+
+# ============================================
+# Function to print information (yellow)
+# ============================================
+_print_info(){
+  local amarelo="\033[33m"
+  local reset="\033[m"
+
+  printf "${amarelo}$1${reset}\n"
 }
 
-function require() {
-  type $1 &>/dev/null || die "I require $1 to be installed and in your PATH.  Aborting."
+################################################################################
+# Validations
+
+# ============================================
+# Function to install dependencies
+# ============================================
+require() {
+  local dependency=$1
+  if ! type "$dependency" > /dev/null 2>&1; then
+    echo "installing dependencies..."
+    echo "---- [$dependency] ----"
+    sudo apt-get install -y "$dependency"
+  fi
 }
 
-# Given foo.bar, creates a tempfile named foo.XXXXX.bar, where Xs are random.
-# The file will be created inside of TMPDIR.
-function better_mktemp() {
-  ARG="$1"
-  FILENAME=${ARG%.*}.XXX
-  EXT=${ARG##*.}
-
-  FILE=`mktemp -t ${FILENAME}` || die "Failed to create temp file: $ARG"
-
-  DEST="$FILE.$EXT"
-  mv ${FILE} "$DEST" || die "Failed to rename temp file '$ARG' to '$DEST'"
-
-  echo "$DEST"
+# ============================================
+# Check dependency. If is null abort script
+# ============================================
+require_block() {
+  local dependency=$1
+  if ! type "$dependency" > /dev/null 2>&1; then
+    echo "is necessary $dependency to run this script. Aborting..."
+    exit $ERROR
+  fi
 }
 
-function print_help() {
+# ============================================
+# Validations handle
+# ============================================
+validations() {
+  require_block adb
+  require ffmpeg
+  require ffprobe
+}
+
+
+################################################################################
+# Script functions - Specific functions of script
+
+# ============================================
+# Function to print help
+# ============================================
+print_help() {
   cat <<- "EOF"
 usage: gifcap [options...] [output]
 
@@ -100,79 +140,112 @@ positional arguments:
   output - the output filename; defaults to output.gif
 
 EOF
-  exit 0
 }
 
-# Default adb command, which may get extra adb args
-ADB="adb"
+# ============================================
+# Given foo.bar, creates a tempfile named foo.XXXXX.bar,
+# where Xs are random.
+# The file will be created inside of TMPDIR.
+# ============================================
+better_mktemp() {
+  local arg="$1"
 
-# Parse optional arguments
-OPTIND=1
-while getopts "s:h-:" opt; do
-  case "$opt" in
-    s) # -s: pass thru device serial to adb command
-        ADB="adb -s $OPTARG"
-        ;;
-    h) # -h: short opt for help
-        print_help
-        ;;
-    -) # long opts e.g. --help
-        case "$OPTARG" in
-          help) # --help: long opt for help
-            print_help
-            ;;
-        esac
-        ;;
-  esac
-done
-shift "$((OPTIND-1))"
+  local filename=${arg%.*}.XXX
+  local extesion=${arg##*.}
 
-require adb
-require ffmpeg
-require ffprobe
+  local file=$(mktemp -t ${filename}) || echo "Failed to create temp file: $arg"
 
-OUTPUT="output.gif"
-if [ ! -z "${1-}" ]; then
-  OUTPUT="$1"
-fi
+  local destiny="${file}.${extesion}"
 
-# Do all work in a temp directory that is deleted on script exit.
-MY_TMPDIR=`mktemp -d gifcap.XXXXX` || die "Failed to create a temporary working directory, aborting"
-trap "rm -rf ${MY_TMPDIR}" EXIT
+  mv ${file} "$destiny" || echo "Failed to rename temp file $arg to $destiny"
 
-SCREENCAP=`TMPDIR=${MY_TMPDIR} better_mktemp screencap.mp4`
-PALETTE=`TMPDIR=${MY_TMPDIR} better_mktemp palette.png`
+  echo "$destiny"
+}
 
-ADB_SCREENCAP_PATH="/sdcard/$(basename ${SCREENCAP})"
+# ============================================
+# Main function
+# ============================================
+main(){
+  # if $file_output is not defined, set as 'output.gif'
+  local output=${file_output:=output.gif}
 
-echo "Recording, end with CTRL+C"
-trap "echo 'Recording stopped.  Converting...'" INT
+  # Do all work in a temp directory that is deleted on script exit.
+  local my_temp_dir=$(mktemp -d gifcap.XXXXX) || echo "Failed to create a temporary working directory, aborting"
+  trap "rm -rf ${my_temp_dir}" EXIT
 
-# adb shell screenrecord returns non-zero on success
-set +e
-$ADB -d shell screenrecord ${ADB_SCREENCAP_PATH}
-set -e
+  local screen_capture=$(TMPDIR=${my_temp_dir} better_mktemp screencap.mp4)
+  local palette=$(TMPDIR=${my_temp_dir} better_mktemp palette.png)
 
-trap - INT
+  local adb_screen_capture_path="/sdcard/$(basename ${screen_capture})"
 
-# It takes non-zero time for the device to finish writing the video file.
-# Wait, then pull.
+  echo "Recording, end with CTRL+C"
+  trap "echo 'Recording stopped.'" INT
 
-sleep 5 # determined by science
+  # adb shell screenrecord returns non-zero on success
+  set +e
+  $ADB -d shell screenrecord ${adb_screen_capture_path}
+  set -e
 
-$ADB -d pull ${ADB_SCREENCAP_PATH} ${SCREENCAP}
-$ADB -d shell rm -f ${ADB_SCREENCAP_PATH}
+  trap - INT
 
-# Grab the length of the video in seconds
-DURATION=$( ffprobe ${SCREENCAP} -show_format 2>/dev/null | awk -F '=' '/^duration/ { print $2}' )
+  # It takes non-zero time for the device to finish writing the video file.
+  # Wait, then pull.
 
-# Determine an appropriate color palette for the video
-INPUT_FLAGS="-y -ss 0 -t ${DURATION} -i ${SCREENCAP}"
-VF_FLAGS="fps=30,scale=320:-1:flags=lanczos,palettegen"
-ffmpeg ${INPUT_FLAGS} -vf ${VF_FLAGS} ${PALETTE} &>/dev/null
+  sleep 5 # determined by science
 
-# Using the palette, convert the video to a gif.
-FILTER="fps=30,scale=320:-1:flags=lanczos[x];[x][1:v]"
-PALETTEUSE="paletteuse=dither=bayer:bayer_scale=4"
-FILTER_COMPLEX="$FILTER$PALETTEUSE"
-ffmpeg ${INPUT_FLAGS} -i ${PALETTE} -filter_complex "$FILTER_COMPLEX" "$OUTPUT" &>/dev/null
+  _print_info "creating file..."
+  $ADB -d pull ${adb_screen_capture_path} ${screen_capture}
+  $ADB -d shell rm -f ${adb_screen_capture_path}
+
+  # Grab the length of the video in seconds
+  local duration=$(ffprobe ${screen_capture} -show_format 2>/dev/null | awk -F '=' '/^duration/ { print $2}')
+  # Determine an appropriate color palette for the video
+  local input_flags="-y -ss 0 -t ${duration} -i ${screen_capture}"
+  local vf_flags="fps=30,scale=320:-1:flags=lanczos,palettegen"
+
+  _print_info "building file..."
+  ffmpeg ${input_flags} -vf ${vf_flags} ${palette} &>/dev/null
+
+  # Using the palette, convert the video to a gif.
+  local filter="fps=30,scale=320:-1:flags=lanczos[x];[x][1:v]"
+  local paletteuse="paletteuse=dither=bayer:bayer_scale=4"
+  local filter_complex="${filter}${paletteuse}"
+
+  _print_info "Converting..."
+  ffmpeg ${input_flags} -i ${palette} -filter_complex "$filter_complex" "$output" &>/dev/null
+  _print_info "Done."
+}
+
+################################################################################
+# Main - Script execution
+
+  # Default adb command, which may get extra adb args
+  ADB="adb"
+
+  # Parse optional arguments
+  opt_index=1
+  while getopts "s:h-:" opt; do
+    case "$opt" in
+      s) # -s: pass thru device serial to adb command
+          ADB="adb -s $opt_arg"
+          ;;
+      h) # -h: short opt for help
+          print_help
+          exit $SUCCESS
+          ;;
+      -) # long opts e.g. --help
+          case "$opt_arg" in
+            help) # --help: long opt for help
+              print_help
+              ;;
+          esac
+          ;;
+    esac
+  done
+  shift "$((opt_index-1))"
+
+validations
+main
+
+################################################################################
+# End of Script =D
