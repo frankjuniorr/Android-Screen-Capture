@@ -1,15 +1,11 @@
 <!--
-Thanks for wanting to report an issue you've found.
-Please delete this text and fill in the template below.
-
-NOTE: Choose a one section below, write and delete the others, if you do not need
+Choose a one section below, write and delete the others, if you do not need.
+And delete this comments
 -->
 
 ## Question:
 
 > write your question here.
-
--------
 
 ## TODO
 
@@ -22,8 +18,6 @@ NOTE: Choose a one section below, write and delete the others, if you do not nee
 
 > improvement example here... <!-- replace this text with Improvement description -->
 
--------
-
 ## BUGS <!-- use 'bug' label -->
 
 #### Current Behavior
@@ -34,6 +28,6 @@ NOTE: Choose a one section below, write and delete the others, if you do not nee
 
 > Expected behavior here...
 
-## Possible Solution
+#### Possible Solution
 
 > Expected behavior here...
