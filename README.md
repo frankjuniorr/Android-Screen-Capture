@@ -16,14 +16,14 @@ worth far more.  This script makes it easy to capture and share subtle app behav
 GIFs with a single command.
 
 <div align="center">
-  <img src="example.gif" alt="An animated GIF showing an Android app opening" />
+  <img src="art/example.gif" alt="An animated GIF showing an Android app opening" />
   <br />
 </div>
 
 ### Usage
 
 ```bash
-./screen_capture_gif.sh your_file_name.gif
+./android_screen_capture.sh your_file_name.gif
 <CTRL+C to stop recording>
 ```
 
@@ -37,7 +37,7 @@ Ensure `adb`, `ffmpeg`, and `ffprobe` are on your `$PATH`.
 
 #### Suggestion
 
-Copy `screen_capture_gif` and place it somewhere on your `$PATH`.
+Copy `android_screen_capture` and place it somewhere on your `$PATH`.
 
 -------
 

@@ -83,6 +83,16 @@ _print_info(){
   printf "${amarelo}$1${reset}\n"
 }
 
+# ============================================
+# Function to print error and exit
+# ============================================
+die() {
+  local msg="$1"
+
+  echo >&2 "$msg"
+  exit "$ERROR"
+}
+
 ################################################################################
 # Validations
 
@@ -104,8 +114,7 @@ require() {
 require_block() {
   local dependency=$1
   if ! type "$dependency" > /dev/null 2>&1; then
-    echo "is necessary $dependency to run this script. Aborting..."
-    exit $ERROR
+    die "is necessary $dependency to run this script. Aborting..."
   fi
 }
 
@@ -153,11 +162,11 @@ better_mktemp() {
   local filename=${arg%.*}.XXX
   local extesion=${arg##*.}
 
-  local file=$(mktemp -t ${filename}) || echo "Failed to create temp file: $arg"
+  local file=$(mktemp -t ${filename}) || die "Failed to create temp file: $arg"
 
   local destiny="${file}.${extesion}"
 
-  mv ${file} "$destiny" || echo "Failed to rename temp file $arg to $destiny"
+  mv ${file} "$destiny" || die "Failed to rename temp file $arg to $destiny"
 
   echo "$destiny"
 }
@@ -170,7 +179,7 @@ main(){
   local output=${file_output:=output.gif}
 
   # Do all work in a temp directory that is deleted on script exit.
-  local my_temp_dir=$(mktemp -d gifcap.XXXXX) || echo "Failed to create a temporary working directory, aborting"
+  local my_temp_dir=$(mktemp -d gifcap.XXXXX) || die "Failed to create a temporary working directory, aborting"
   trap "rm -rf ${my_temp_dir}" EXIT
 
   local screen_capture=$(TMPDIR=${my_temp_dir} better_mktemp screencap.mp4)
