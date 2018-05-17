@@ -1,6 +1,6 @@
-## screen_capture_gif
+## Android Screen Capture
 
-A project inspired and forked from [Outlook](https://github.com/outlook/gifcap)
+##### A project inspired and forked from [Outlook](https://github.com/outlook/gifcap)
 
 ![OS](https://img.shields.io/badge/OS-Linux-212121.svg?style=true)
 ![dependence](https://img.shields.io/badge/dependence-adb-F44336.svg?style=true)
