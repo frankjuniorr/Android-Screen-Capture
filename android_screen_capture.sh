@@ -119,12 +119,25 @@ require_block() {
 }
 
 # ============================================
+# Function to check if device is attached in computer
+# ============================================
+isDeviceAttached(){
+  local isDevice=$(adb devices | grep --after-context=2 "List of devices attached" | tail -n1)
+  if [ -z "$isDevice" ];then
+    die "Device is not attached"
+    exit "$ERROR"
+  fi
+}
+
+# ============================================
 # Validations handle
 # ============================================
 validations() {
   require_block adb
   require ffmpeg
   require ffprobe
+
+  isDeviceAttached
 }
 
 
