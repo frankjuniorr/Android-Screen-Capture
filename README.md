@@ -1,3 +1,5 @@
+<p align="center"><img src="logo/1024.png" alt="Android-Screen-Capture" height="200px"></p>
+
 ## Android Screen Capture
 
 ##### A project inspired and forked from [Outlook](https://github.com/outlook/gifcap)
