@@ -125,7 +125,6 @@ isDeviceAttached(){
   local isDevice=$(adb devices | grep --after-context=2 "List of devices attached" | tail -n1)
   if [ -z "$isDevice" ];then
     die "Device is not attached"
-    exit "$ERROR"
   fi
 }
 
